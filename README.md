@@ -16,3 +16,4 @@
 
 ## Usage
 
+If object and validation in path middle way labels will be lost in full err message
