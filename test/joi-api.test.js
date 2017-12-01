@@ -10,6 +10,7 @@ describe(`- Test Joi api in use by joi-add`, () => {
             expect(validation).toHaveProperty('value', 5);
             expect(validation).toHaveProperty('error');
             expect(validation.error).not.toBe(null);
+            expect(validation.error).toBeInstanceOf(Error);
         });
         test(id(2) + `Output error structure`, () => {
             const error = validation.error;
