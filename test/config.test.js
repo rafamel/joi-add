@@ -14,6 +14,8 @@ function getTypes(joi) {
                 // Exclude aliases
                 && key !== 'bool'
                 && key !== 'alt'
+                // Exclude 'alternatives'
+                && key !== 'alternatives'
             ) {
                 types.push(key);
             }
@@ -22,8 +24,16 @@ function getTypes(joi) {
     return types.filter((x, i, arr) => arr.indexOf(x) === i);
 };
 
-describe(`- Types`, () => {
-    test.only(id(1) + `Are all Joi types`, () => {
-        expect(config.types.sort()).toEqual(getTypes(Joi).sort());
+describe(`- Types has all Joi types`, () => {
+    const all = getTypes(Joi).sort();
+    const scalars = all
+        .filter(x => ['array', 'object'].indexOf(x) === -1);
+    const nonScalars = all.filter(x => scalars.indexOf(x) === -1);
+
+    test(id(1) + `scalars`, () => {
+        expect(config.types.scalars.sort()).toEqual(scalars);
+    });
+    test(id(1) + `nonScalars`, () => {
+        expect(config.types.nonScalars.sort()).toEqual(nonScalars);
     });
 });

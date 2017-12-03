@@ -37,10 +37,14 @@ const Joi = require('joi-add')(require('joi'));
 
 ### `.add(validation, message)`
 
+*`add()` is available for all native **scalar** Joi types,* (it's not for `Joi.array()`, `Joi.object()` and `Joi.alternatives()`).
+
 - `validation`: *Joi* validation or *Joi* validation returning function.
 - `message` (optional): *String.* Personalized error message.
 
-**An example of a simple use case with `validation` as a *Joi* validation would be:**
+#### Examples
+
+An example of a simple use case with `validation` as a *Joi* validation would be:
 
 ```javascript
 Joi.string()
@@ -66,7 +70,9 @@ Joi.string()
     );
 ```
 
-Of course, if the validation is within an *object* schema, the error message will be full, as it's usual with *Joi*. As an example:
+#### If the validation is within an *object* schema, the error message will show the full error path
+
+As usual with *Joi*. As an example:
 
 ```javascript
 Joi.object().keys({
@@ -80,13 +86,19 @@ Joi.object().keys({
 
 With the [default `language` options](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback), the error message here would be `'child "username" fails because [Username should only contain letters, numbers, and underscores (_).]'`. If you are looking to only show your custom error message, you can always catch the error and get the `error.details[0].message`, which will always be your custom message, if it exists, or the *Joi* generated error for the specific key/value that failed.
 
-Check the [limitations of `.add()`](#limitations-of-add) for further details.
+#### Only the first inner error will be in the error array (`error.details`)
+
+If more than one validations fail within the same `.add()`, only the first one be present in the `error.details` array. This is due to the limitations of *Joi* native extensibility. Therefore, if in `Joi.string().add((it) => it.min(2).regex(/^[a-zA-Z0-9_]+$/))` both validations fail, only the first one will be in the error array (`error.details`). However, in `Joi.string().add((it) => it.min(2)).add((it) => it.regex(/^[a-zA-Z0-9_]+$/))`, they would both be normally logged.
 
 ### `.addFn(function, message, noKey)`
+
+*`addFn()` is available for all native Joi types* except `Joi.alternatives()`.
 
 - `function`: *Function.* A function, taking the value to validate, and returning a boolean. When returning `true`, the validation will pass, when `false`, it will fail.
 - `message` (optional): *String.* Personalized error message.
 - `noKey` (optional): *Boolean.* Outputs the key or label in the error message when `false`, doesn't when `true`. Defaults to `true` if there is an explicit message. Defaults to `false` otherwise.
+
+#### Example
 
 A simple use case:
 
@@ -100,37 +112,3 @@ The error message here would be `'"MyString" didn't pass'`.
 We can customize the message: `Joi.string().addFn((val) => false, 'My Message')` will have an error message of `'My Message'`.
 
 If we didn't intend to override the key/label with our custom error message, we can explicitly set `noLabel` to `false`: `Joi.string().addFn((val) => false, 'My Message', false).label('My Label')` will have an error message of `'"My Label" My Message'`.
-
-## Limitations of `.add()`
-
-### Only the first inner error will be in the error array (`error.details`)
-
-If more than one validations fail within the same `.add()`, only the first one be present in the `error.details` array. This is due to the limitations of *Joi* native extensibility. If in `Joi.string().add((it) => it.min(2).regex(/^[a-zA-Z0-9_]+$/))` both validations fail, only the first one will be on the error array (`error.details`). However, in `Joi.string().add((it) => it.min(2)).add((it) => it.regex(/^[a-zA-Z0-9_]+$/))`, they would be normally logged.
-
-### Inner object schemas will lose their intermediary keys in the main error message
-
-Take this schema:
-
-```javascript
-Joi.object().keys({
-    a: Joi.object().keys({
-        b: Joi.object().keys({
-            c: Joi.string()
-        })
-    })
-});
-```
-
-The `error.message` with the [default `language` options](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback) would be `'child "a" fails because [child "b" fails because [child "c" fails because ["c" must be a string]]]'`. However, if part of the schema is inside `.add()`, it will lose the intermediary keys, but not the last (the one the error was produced at), from the main error message (`error.message`). For the following example, the message would be `'child "a" fails because ["c" must be a string]'`:
-
-```javascript
-Joi.object().keys({
-    a: Joi.object().add((it) => it.keys({
-        b: Joi.object().keys({
-            c: Joi.string()
-        })
-    }))
-});
-```
-
-Of course, you can always examine the error details to get the path (`error.details[0].path`), which in this case would correctly be `['a', 'b', 'c']`.

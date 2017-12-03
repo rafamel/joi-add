@@ -5,10 +5,15 @@ const Joi = require('../lib')(require('joi'));
 const id = (n) => `[${ String(n) }] `;
 
 describe(`- .add()`, () => {
-    describe(`- Exists for all types`, () => {
-        test(id(1), () => {
-            config.types.forEach(type => {
+    describe(`- Exists for types`, () => {
+        test(id(1) + `Exists for scalars`, () => {
+            config.types.scalars.forEach(type => {
                 expect(() => Joi[type]().add()).not.toThrow();
+            });
+        });
+        test(id(2) + `Doesn't exist for non scalars`, () => {
+            config.types.nonScalars.forEach(type => {
+                expect(() => Joi[type]().add()).toThrow();
             });
         });
     });
@@ -72,34 +77,6 @@ describe(`- .add()`, () => {
         });
     });
 
-    describe(`- Path and middle keys`, () => {
-        const val = Joi.object().keys({
-            some: Joi.object()
-                .add((it) => it.keys({
-                    other: Joi.object().keys({
-                        more: Joi.number().max(5)
-                    })
-                }))
-        });
-
-        test(id(1) + `Middle keys are lost`, () => {
-            const { error } = Joi.validate({ some: { other: { more: 6 } } }, val);
-
-            expect(error.details[0].type).toBe(`object.add`);
-            expect(error.details[0].message).toContain('more');
-            expect(error.details[0].message).not.toContain('other');
-            expect(error.details[0].context.message).not.toContain('more');
-            expect(error.message).toContain('more');
-            expect(error.message).not.toContain('other');
-            expect(error.message).toContain('some');
-        });
-        test(id(2) + `Full path`, () => {
-            const { error } = Joi.validate({ some: { other: { more: 6 } } }, val);
-
-            expect(error.details[0].path).toEqual(['some', 'other', 'more']);
-        });
-    });
-
     describe(`- Options are preserved on inner validation`, () => {
         test(id(1), () => {
             const val = Joi.any().add(Joi.number());
@@ -112,7 +89,7 @@ describe(`- .add()`, () => {
     });
 
     describe(`- Label inheritance & Error structure`, () => {
-        test(id(1) + `Single: Inner & Outer label`, () => {
+        test(id(1) + `Inner & Outer label`, () => {
             const valInner = Joi.string().add((it) => it.min(5).label('Ex'));
             const valOuter = Joi.string().add((it) => it.min(5)).label('Ex');
             const errors = [
@@ -130,7 +107,7 @@ describe(`- .add()`, () => {
                 expect(error.details[0].context.value).toBe('str');
             });
         });
-        test(id(2) + `Single: Proper label depending on error`, () => {
+        test(id(2) + `Proper label depending on error`, () => {
             const val = Joi.number()
                 .add((it) => it.min(4).label('labelA'))
                 .add((it) => it.max(8).label('labelB'));
@@ -143,7 +120,7 @@ describe(`- .add()`, () => {
             expect(errorB.message).toContain('labelB');
             expect(errorB.message).not.toContain('labelA');
         });
-        test(id(3) + `Single: Inner label precedence`, () => {
+        test(id(3) + `Inner label precedence`, () => {
             const val = Joi.number()
                 .add((it) => it.min(4).label('labelA'))
                 .add((it) => it.max(8))
@@ -157,7 +134,7 @@ describe(`- .add()`, () => {
             expect(errorB.message).toContain('labelB');
             expect(errorB.message).not.toContain('labelA');
         });
-        test(id(4) + `Single: Inner label precedence when root label is different`, () => {
+        test(id(4) + `Inner label precedence when root label is different`, () => {
             const val = Joi.number()
                 .add((it) => it.min(4).label('labelA'))
                 .add((it) => it.max(8));
@@ -171,32 +148,10 @@ describe(`- .add()`, () => {
             expect(errorB.message).toContain('rootLabel');
             expect(errorB.message).not.toContain('labelA');
         });
-        test(id(5) + `Object labels: middle labels are lost; outer and innermost preserved`, () => {
-            const val = Joi.object().keys({
-                some: Joi.object()
-                    .add((it) => it.keys({
-                        other: Joi.object().keys({
-                            more: Joi.number().max(5).label('Ex1')
-                        }).label('Ex2')
-                    }))
-                    .label('Ex3')
-            });
-            const { error } = Joi.validate({ some: { other: { more: 6 } } }, val);
-
-            expect(error.details[0].type).toBe(`object.add`);
-            expect(error.details[0].message).toContain('Ex1');
-            expect(error.details[0].context.message).not.toContain('Ex1');
-            expect(error.message).toContain('Ex3');
-            expect(error.message).not.toContain('some');
-            expect(error.message).not.toContain('Ex2');
-            expect(error.message).not.toContain('other');
-            expect(error.message).toContain('Ex1');
-            expect(error.message).not.toContain('more');
-        });
     });
 
     describe(`- Custom message`, () => {
-        test(id(1) + `Single`, () => {
+        test(id(1), () => {
             const val = Joi.number()
                 .add((it) => it.min(4).label('labelA'), 'Such an error')
                 .add((it) => it.max(8))
@@ -212,18 +167,6 @@ describe(`- .add()`, () => {
             expect(errorB.message).toContain('labelB');
             expect(errorB.message).not.toContain('Such an error');
             expect(errorB.details[0].context).not.toHaveProperty('isExplicit');
-        });
-        test(id(2) + `Object`, () => {
-            const val = Joi.object().keys({
-                some: Joi.number()
-                    .add((it) => it.max(5), 'Such an error')
-            });
-            const { error } = Joi.validate({ some: 10 }, val);
-
-            expect(error.message).not.toBe('Such an error');
-            expect(error.message).toContain('Such an error');
-            expect(error.details[0].message).toBe('Such an error');
-            expect(error.details[0].context).toHaveProperty('isExplicit', true);
         });
     });
 });
