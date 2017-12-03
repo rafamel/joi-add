@@ -14,7 +14,7 @@ function getTypes(joi) {
                 // Exclude aliases
                 && key !== 'bool'
                 && key !== 'alt'
-                // Exclude 'alternatives'
+                // Exclude alternatives
                 && key !== 'alternatives'
             ) {
                 types.push(key);
@@ -28,12 +28,11 @@ describe(`- Types has all Joi types`, () => {
     const all = getTypes(Joi).sort();
     const scalars = all
         .filter(x => ['array', 'object'].indexOf(x) === -1);
-    const nonScalars = all.filter(x => scalars.indexOf(x) === -1);
 
-    test(id(1) + `scalars`, () => {
+    test(id(2) + `scalars`, () => {
         expect(config.types.scalars.sort()).toEqual(scalars);
     });
-    test(id(1) + `nonScalars`, () => {
-        expect(config.types.nonScalars.sort()).toEqual(nonScalars);
+    test(id(3) + `all`, () => {
+        expect(config.types.all.sort()).toEqual(all);
     });
 });

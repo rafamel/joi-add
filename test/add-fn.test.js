@@ -7,10 +7,9 @@ const id = (n) => `[${ String(n) }] `;
 describe(`- .addFn()`, () => {
     describe(`- Exists for all types`, () => {
         test(id(1), () => {
-            config.types.scalars.concat(config.types.nonScalars)
-                .forEach(type => {
-                    expect(() => Joi[type]().addFn()).not.toThrow();
-                });
+            config.types.all.forEach(type => {
+                expect(() => Joi[type]().addFn(() => {})).not.toThrow();
+            });
         });
     });
     describe(`- Takes right input`, () => {

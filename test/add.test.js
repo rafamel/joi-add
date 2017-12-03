@@ -8,15 +8,18 @@ describe(`- .add()`, () => {
     describe(`- Exists for types`, () => {
         test(id(1) + `Exists for scalars`, () => {
             config.types.scalars.forEach(type => {
-                expect(() => Joi[type]().add()).not.toThrow();
+                expect(() => Joi[type]().add(Joi.any())).not.toThrow();
             });
         });
         test(id(2) + `Doesn't exist for non scalars`, () => {
-            config.types.nonScalars.forEach(type => {
-                expect(() => Joi[type]().add()).toThrow();
+            const nonScalars = config.types.all
+                .filter(x => config.types.scalars.indexOf(x) === -1);
+            nonScalars.forEach(type => {
+                expect(() => Joi[type]().add(Joi.any())).toThrow();
             });
         });
     });
+
     describe(`- Takes right input`, () => {
         test(id(1) + `Takes joi schema or function`, () => {
             expect(() => Joi.any().add(Joi.any())).not.toThrow();

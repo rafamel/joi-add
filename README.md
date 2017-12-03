@@ -20,7 +20,7 @@ With *joi-add* you can add custom function validations to *Joi* schemas, as well
 
 ## Setup
 
-Simply pass *Joi* to *joi-add*, like so:
+Pass *Joi* to *joi-add*, like so:
 
 ```javascript
 const baseJoi = require('joi');
@@ -92,7 +92,7 @@ If more than one validations fail within the same `.add()`, only the first one b
 
 ### `.addFn(function, message, noKey)`
 
-*`addFn()` is available for all native Joi types* except `Joi.alternatives()`.
+*`addFn()` is available for all native Joi types,* except `Joi.alternatives()`.
 
 - `function`: *Function.* A function, taking the value to validate, and returning a boolean. When returning `true`, the validation will pass, when `false`, it will fail.
 - `message` (optional): *String.* Personalized error message.
@@ -104,7 +104,7 @@ A simple use case:
 
 ```javascript
 // Will pass if the string is equal to 5; will fail otherwise
-Joi.string().addFn((val) => val === '5').label('MyString');
+Joi.string().addFn((val) => val === '5').addLabel('MyString');
 ```
 
 The error message here would be `'"MyString" didn't pass'`.
@@ -112,3 +112,18 @@ The error message here would be `'"MyString" didn't pass'`.
 We can customize the message: `Joi.string().addFn((val) => false, 'My Message')` will have an error message of `'My Message'`.
 
 If we didn't intend to override the key/label with our custom error message, we can explicitly set `noLabel` to `false`: `Joi.string().addFn((val) => false, 'My Message', false).label('My Label')` will have an error message of `'"My Label" My Message'`.
+
+### `.addLabel(label, callback)`
+
+*`addLabel()` is available for all native Joi types,* except `Joi.alternatives()`.
+
+Many times we'll want to specifically identify when an error message comes from a labeled key. This is difficult to do in a generalizable and certain way, as the `error.details[0].context.label` will always contain a value, equal to the `options.language.root`, the object key, or the explicit label we gave it via [`any.label()`](https://github.com/hapijs/joi/blob/master/API.md#anylabelname).
+
+We can use `addLabel()` instead of [`any.label()`](https://github.com/hapijs/joi/blob/master/API.md#anylabelname) to be able to identify with certainty whether the label was explicitly set, as `error.details[0].context.addLabel` will always be equal to the label value when used, or non existent when `addLabel()` was not used.
+
+- `label`: *String.* The label to use.
+- `callback`: *Function.* `addLabel()` uses the [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) *Joi* method. This has a limitation: you can't use `any.error()` on any validation you use `addLabel()` on, as that would override its effects. To mitigate that, you can pass a callback function to `addLabel` with the same characteristics as the one taken by [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr).
+
+```javascript
+Joi.string().max(5).addLabel('My Label');
+```
