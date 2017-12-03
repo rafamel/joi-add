@@ -26,9 +26,13 @@
   },
   "license": "MIT",
   "keywords": [
-    "keywords",
-    "keywords",
-    "keywords"
+    "joi",
+    "extension",
+    "plugin",
+    "add",
+    "function",
+    "validation",
+    "message"
   ],
   "bugs": {
     "url": "https://github.com/rafamel/joi-add/issues"
