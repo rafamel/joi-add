@@ -8,7 +8,7 @@
 [![Issues](https://img.shields.io/github/issues/rafamel/joi-add.svg)](https://github.com/rafamel/joi-add/issues)
 [![License](https://img.shields.io/github/license/rafamel/joi-add.svg)](https://github.com/rafamel/joi-add/blob/master/LICENSE)
 
-**Add and expand on previously defined [*Joi*](https://github.com/hapijs/joi/) schemas. Define check-specific error messages.**
+**Add and expand on previously defined [*Joi*](https://github.com/hapijs/joi/) schemas. Define check-specific error messages. Add custom function validations.**
 
 ## Install
 
@@ -16,7 +16,7 @@
 
 ## Why
 
-*joi-add* adds the possibility of customizing the error message for specific checks, as the *Joi* API method [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) will affect all of the checks of the validation. This is particularly useful when validating requests on the server and we'd like to offer meaningful error messages for distinct checks. The usage of *joi-add* with [*any.concat()*](https://github.com/hapijs/joi/blob/master/API.md#anyconcatschema) will allow for reusable, extensible schemas that produce meaningful error messages.
+With *joi-add* you can add custom function validations to *Joi* schemas, as well as customize the error message for any specific validation check, as the *Joi* API method [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) will affect all the checks for a key/value. This is particularly useful when validating requests on the server, as it allows us to offer meaningful error messages for distinct checks. The usage of *joi-add* with [*any.concat()*](https://github.com/hapijs/joi/blob/master/API.md#anyconcatschema) will allow for reusable, extensible schemas that produce meaningful error messages.
 
 ## Setup
 
@@ -38,7 +38,7 @@ const Joi = require('joi-add')(require('joi'));
 ### `.add(validation, message)`
 
 - `validation`: *Joi* validation or *Joi* validation returning function.
-- `message` (optional): Personalized error message.
+- `message` (optional): *String.* Personalized error message.
 
 **An example of a simple use case with `validation` as a *Joi* validation would be:**
 
@@ -80,7 +80,28 @@ Joi.object().keys({
 
 With the [default `language` options](https://github.com/hapijs/joi/blob/master/API.md#validatevalue-schema-options-callback), the error message here would be `'child "username" fails because [Username should only contain letters, numbers, and underscores (_).]'`. If you are looking to only show your custom error message, you can always catch the error and get the `error.details[0].message`, which will always be your custom message, if it exists, or the *Joi* generated error for the specific key/value that failed.
 
-## Limitations
+Check the [limitations of `.add()`](#limitations-of-add) for further details.
+
+### `.addFn(function, message, noKey)`
+
+- `function`: *Function.* A function, taking the value to validate, and returning a boolean. When returning `true`, the validation will pass, when `false`, it will fail.
+- `message` (optional): *String.* Personalized error message.
+- `noKey` (optional): *Boolean.* Outputs the key or label in the error message when `false`, doesn't when `true`. Defaults to `true` if there is an explicit message. Defaults to `false` otherwise.
+
+A simple use case:
+
+```javascript
+// Will pass if the string is equal to 5; will fail otherwise
+Joi.string().addFn((val) => val === '5').label('MyString');
+```
+
+The error message here would be `'"MyString" didn't pass'`.
+
+We can customize the message: `Joi.string().addFn((val) => false, 'My Message')` will have an error message of `'My Message'`.
+
+If we didn't intend to override the key/label with our custom error message, we can explicitly set `noLabel` to `false`: `Joi.string().addFn((val) => false, 'My Message', false).label('My Label')` will have an error message of `'"My Label" My Message'`.
+
+## Limitations of `.add()`
 
 ### Only the first inner error will be in the error array (`error.details`)
 

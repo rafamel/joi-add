@@ -2,7 +2,7 @@
   "name": "joi-add",
   "version": "0.1.0",
   "author": "Rafa Mel",
-  "description": "Add and expand on previously defined Joi schemas. Define check-specific error messages.",
+  "description": "Add and expand on previously defined Joi schemas. Define check-specific error messages. Add custom function validations.",
   "homepage": "https://github.com/rafamel/joi-add",
   "main": "./lib/index",
   "scripts": {
