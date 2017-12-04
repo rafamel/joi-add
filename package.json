@@ -1,6 +1,6 @@
 {
   "name": "joi-add",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Rafa Mel",
   "description": "Add and expand on previously defined Joi schemas. Define check-specific error messages. Add custom function validations.",
   "homepage": "https://github.com/rafamel/joi-add",
