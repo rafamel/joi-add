@@ -18,6 +18,10 @@
 
 With *joi-add* you can add custom function validations to *Joi* schemas, as well as customize the error message for any specific validation check, as the *Joi* API method [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) will affect all the checks for a key/value. This is particularly useful when validating requests on the server, as it allows us to offer meaningful error messages for distinct checks. The usage of *joi-add* with [*any.concat()*](https://github.com/hapijs/joi/blob/master/API.md#anyconcatschema) will allow for reusable, extensible schemas that produce meaningful error messages.
 
+## Todo
+
+Test persist.
+
 ## Setup
 
 Pass *Joi* to *joi-add*, like so:
@@ -27,10 +31,17 @@ const baseJoi = require('joi');
 const Joi = require('joi-add')(baseJoi);
 ```
 
-Or simply:
+If you're running an application, because of *Node.js*'s `require()` caching, you'll only need to pass *Joi* once. From then on, you can just do:
 
 ```javascript
-const Joi = require('joi-add')(require('joi'));
+const Joi = require('joi-add')();
+```
+
+If you don't want the base *Joi* you're passing to persist like above, you can do:
+
+```javascript
+const baseJoi = require('joi');
+const Joi = require('joi-add')(baseJoi, false);
 ```
 
 ## Usage

@@ -29,10 +29,10 @@ describe(`- Types has all Joi types`, () => {
     const scalars = all
         .filter(x => ['array', 'object'].indexOf(x) === -1);
 
-    test(id(2) + `scalars`, () => {
+    test(id(1) + `scalars`, () => {
         expect(config.types.scalars.sort()).toEqual(scalars);
     });
-    test(id(3) + `all`, () => {
+    test(id(2) + `all`, () => {
         expect(config.types.all.sort()).toEqual(all);
     });
 });
