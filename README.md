@@ -44,7 +44,7 @@ const Joi = require('joi-add')(baseJoi, false);
 
 ### `.add(validation, message)`
 
-*`add()` is available for all native **scalar** Joi types,* (it's not for `Joi.array()`, `Joi.object()` and `Joi.alternatives()`).
+*`add()` is available for all native **scalar** Joi types* - it's not for `Joi.array()`, `Joi.object()` and `Joi.alternatives()`.
 
 - `validation`: *Joi* validation or *Joi* validation returning function.
 - `message` (optional): *String.* Personalized error message.
@@ -120,17 +120,35 @@ We can customize the message: `Joi.string().addFn((val) => false, 'My Message')`
 
 If we didn't intend to override the key/label with our custom error message, we can explicitly set `noLabel` to `false`: `Joi.string().addFn((val) => false, 'My Message', false).label('My Label')` will have an error message of `'"My Label" My Message'`.
 
-### `.addLabel(label, callback)`
+### `.addLabel(label)`
 
 *`addLabel()` is available for all native Joi types,* except `Joi.alternatives()`.
+
+- `label`: *String.* The label to use.
 
 Many times we'll want to specifically identify when an error message comes from a labeled key. This is difficult to do in a generalizable and certain way, as the `error.details[0].context.label` will always contain a value, equal to the `options.language.root`, the object key, or the explicit label we gave it via [`any.label()`](https://github.com/hapijs/joi/blob/master/API.md#anylabelname).
 
 We can use `addLabel()` instead of [`any.label()`](https://github.com/hapijs/joi/blob/master/API.md#anylabelname) to be able to identify with certainty whether the label was explicitly set, as `error.details[0].context.addLabel` will always be equal to the label value when used, or non existent when `addLabel()` was not used.
 
-- `label`: *String.* The label to use.
-- `callback`: *Function.* `addLabel()` uses the [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) *Joi* method. This has a limitation: you can't use `any.error()` on any validation you use `addLabel()` on, as that would override its effects. To mitigate that, you can pass a callback function to `addLabel` with the same characteristics as the one taken by [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr).
+However, `addLabel()` internally uses the [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) *Joi* method. This has a limitation: if `any.error()` is used on any validation `addLabel()` has been used on, only one will have effects. To mitigate that, you can use [`onError()`.](#onerrorcallback)
 
 ```javascript
 Joi.string().max(5).addLabel('My Label');
+```
+
+### `.onError(callback)`
+
+*`onError()` is available for all native Joi types,* except `Joi.alternatives()`.
+
+- `callback`: *Function,* same as for [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr).
+
+This method allows to safely use [`addLabel()`](#addlabellabel) while also customizing error handling, since when the native [`any.error()`](https://github.com/hapijs/joi/blob/master/API.md#anyerrorerr) is used on any validation `addLabel()` has been used on, it will override its effects.
+
+```javascript
+Joi.string().max(10).onError((errors) => {
+    errs.forEach(err => {
+        err.context.iChangedSomething = true;
+    });
+    return errs;
+});
 ```

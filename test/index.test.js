@@ -1,7 +1,6 @@
 'use strict';
-const baseJoi = require('joi');
-
 const id = (n) => `[${ String(n) }] `;
+const baseJoi = require('joi');
 
 describe(`- Joi mixin persistence`, () => {
     test(id(1) + `Doesn't persist with persist = false`, () => {
@@ -9,7 +8,7 @@ describe(`- Joi mixin persistence`, () => {
         expect(() => require('../lib')()).toThrow();
     });
     test(id(2) + `Persists with defaults on external require`, () => {
-        require('./setup/persistence');
+        require('./_setup/persistence');
         expect(() => require('../lib')()).not.toThrow();
         expect(() => require('../lib')().object()).not.toThrow();
     });

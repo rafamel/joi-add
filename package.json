@@ -9,7 +9,7 @@
     "lint": "eslint ./lib --ext .js",
     "lint:test": "eslint ./test --ext .js",
     "lint:md": "markdownlint *.md --config markdown.json",
-    "test": "npm run lint:test && jest ./test/.*.test.js --runInBand --verbose",
+    "test": "npm run lint:test && jest ./test/.*.test.js --runInBand",
     "watch": "nodemon ./node_modules/.bin/run-s lint test",
     "checks": "run-s lint lint:* && jest ./test/.*.test.js && npm outdated",
     "prepublishOnly": "npm run checks",
@@ -44,18 +44,20 @@
     }
   ],
   "devDependencies": {
+    "@types/jest": "^21.1.8",
+    "@types/joi": "^13.0.3",
     "coveralls": "^3.0.0",
-    "eslint": "^4.11.0",
-    "eslint-config-standard": "^10.2.1",
+    "eslint": "^4.13.1",
+    "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jest": "^21.3.2",
+    "eslint-plugin-jest": "^21.4.3",
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest-cli": "^21.2.1",
     "joi": "^13.0.2",
     "markdownlint-cli": "^0.5.0",
-    "nodemon": "^1.12.1",
+    "nodemon": "^1.12.7",
     "npm-run-all": "^4.1.1"
   },
   "dependencies": {

@@ -1,8 +1,7 @@
 'use strict';
+const id = (n) => `[${ String(n) }] `;
 const Joi = require('joi');
 const config = require('../lib/config');
-
-const id = (n) => `[${ String(n) }] `;
 
 function getTypes(joi) {
     const types = [];

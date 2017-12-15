@@ -1,7 +1,6 @@
 'use strict';
-const Joi = require('joi');
-
 const id = (n) => `[${ String(n) }] `;
+const Joi = require('joi');
 
 describe(`- Test Joi api in use by joi-add`, () => {
     describe(`- Joi.validate() ({value, error})`, () => {
