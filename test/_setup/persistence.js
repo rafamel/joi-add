@@ -1,3 +1,2 @@
-'use strict';
 const baseJoi = require('joi');
-require('../../lib')(baseJoi);
+require('../../src')(baseJoi);

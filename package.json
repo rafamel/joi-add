@@ -6,14 +6,18 @@
   "homepage": "https://github.com/rafamel/joi-add",
   "main": "./lib/index",
   "scripts": {
-    "lint": "eslint ./lib --ext .js",
+    "precommit": "MSG='Committing in:' npm run build",
+    "prepublishOnly": "MSG='Publishing in:' npm run build",
+    "build": "npm run validate && (rm -r lib || exit 0) && mkdir lib && babel src --out-dir lib",
+    "fix": "prettier --write \"**/*.{js,scss,md}\"",
+    "lint": "eslint ./src --ext .js",
     "lint:test": "eslint ./test --ext .js",
     "lint:md": "markdownlint *.md --config markdown.json",
     "test": "npm run lint:test && jest ./test/.*.test.js --runInBand",
-    "watch": "nodemon ./node_modules/.bin/run-s lint test",
-    "checks": "run-s lint lint:* && jest ./test/.*.test.js && npm outdated",
-    "prepublishOnly": "npm run checks",
-    "update:packages": "rm -rf node_modules && rm package-lock.json && npm update --save/save-dev && npm install && npm outdated"
+    "watch": "nodemon -w ./src -x 'clear && npx run-s lint test'",
+    "validate": "run-s fix lint lint:md test outdated",
+    "update": "rm -rf node_modules && rm package-lock.json && npm update --save/save-dev && npm install && npm outdated",
+    "outdated": "if !(npm outdated) && [ -n \"$MSG\" ]; then printf \"\n\" && for i in `seq 0 8`; do sleep 1 && printf '\r%s %2d' \"$MSG\" \"$((8-i))\"; done; fi;"
   },
   "contributors": [
     {
@@ -44,21 +48,27 @@
     }
   ],
   "devDependencies": {
-    "@types/jest": "^21.1.8",
+    "@types/jest": "^22.2.3",
     "@types/joi": "^13.0.3",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "coveralls": "^3.0.0",
     "eslint": "^4.13.1",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-jest": "^21.4.3",
-    "eslint-plugin-node": "^5.2.1",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "jest-cli": "^21.2.1",
+    "husky": "^0.14.3",
+    "jest-cli": "^22.4.3",
     "joi": "^13.0.2",
-    "markdownlint-cli": "^0.5.0",
+    "markdownlint-cli": "^0.8.1",
     "nodemon": "^1.12.7",
-    "npm-run-all": "^4.1.1"
+    "npm-run-all": "^4.1.1",
+    "prettier": "^1.12.0"
   },
   "dependencies": {
     "lodash.clonedeep": "^4.5.0",
